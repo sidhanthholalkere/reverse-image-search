@@ -80,7 +80,7 @@ def loss(Sgood, Sbad, margin):
             the margin ranking loss (0 if Sgood is bigger than Sbad + magrin, a linear loss otherwise)
         
         """
-        return mg.maximum(0, margin - (sg - sb))
+        return mg.maximum(0, margin - (Sgood - Sbad))
 
 def accuracy():
     """ Count up whether the similariy for the correct value  
@@ -111,23 +111,7 @@ def train(model, optim, num_epochs, images, captions, batch_size=32):
         idxs = np.arange(len(images))
         np.random.shuffle(idxs)
 
-        for batch_cnt in range(0, len(images)//batch_size):
-            batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
-            batch = images[batch_indices]
-
-            prediction = model(batch) #plug in batch of pictures into model and get out Wimg
-            truth = caption[batch_indices] #the caption (50,) at the same indexes
-
-            loss = loss(prediction, truth)
-            acc = accuracy(prediction, truth)
-
-            loss.backward()
-
-            optim.step()
-            loss.null_gradients()
-
-            plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
-
+        f
 
 
 model = Model(512, 50)
