@@ -2,7 +2,7 @@ import numpy as np
 from mynn.layers.dense import dense
 from mynn.initializers.glorot_normal import glorot_normal
 
-class Autoembedder:
+class Image_embedder:
     def __init__(self, d_in, d_out):
         """
 
