@@ -1,5 +1,6 @@
 import pickle
 from pathlib import Path
+import json
 
 def load_resnet(path):
         """
@@ -16,3 +17,25 @@ def load_resnet(path):
         path = Path(path)
         with open(path, mode="rb") as opened_file:
             return pickle.load(opened_file)
+
+def img_ids_to_url(ids):
+    """
+    Returns a list of urls based on the ids
+
+    Parameters
+    ----------
+    ids : List[int]
+        list of top k ids
+    
+    Returns
+    -------
+    urls : List[string]
+        list of the respective url's
+
+    """
+    with open(r'data/captions_train2014.json') as f:
+        captions = json.load(f)
+    
+    urls = {image['id']: image['coco_url'] for image in captions['images']}
+
+    return [urls[id] for id in ids]
