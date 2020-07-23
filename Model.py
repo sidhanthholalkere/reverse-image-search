@@ -111,7 +111,26 @@ def train(model, optim, num_epochs, images, captions, batch_size=32):
         idxs = np.arange(len(images))
         np.random.shuffle(idxs)
 
-        f
+        for batch_cnt in range(0, len(images)//batch_size):
+            batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
+            batch = images[batch_indices]
+
+            good_pic = model(batch) #plug in batch of pictures into model and get out Wimg for the good pictures
+            bad_pic = model() #need to figure out if its random or if its close picture - talk to Petar
+            
+            truth = caption[batch_indices] #the caption (50,) at the same indexes
+            
+            Sgood = cosine_dist(good_pic, truth)
+            Sbad = cosine_dist(bad_pic, truth)
+            
+            loss = loss(Sgood, Sbad, margin)
+            acc = accuracy(prediction, truth)
+
+            loss.backward()
+            optim.step()
+            loss.null_gradients()
+
+            plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
 
 
 model = Model(512, 50)
@@ -119,4 +138,7 @@ optim = SGD(model.parameters, learning_rate=0.1)
 num_epochs = 1
 batch_size = 32
 
-se_image = train(model, optim, )
+
+margin = 
+
+train(model, optim, num_epochs, images, captions, margin)
