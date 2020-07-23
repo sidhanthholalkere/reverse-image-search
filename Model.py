@@ -24,7 +24,7 @@ class Model():
             Dimensionality of output of RNN
         """
         
-        dense1 = dense(dim_input, dim_output, weight_initializer=he_normal)
+        self.dense1 = dense(dim_input, dim_output, weight_initializer=he_normal)
         
     
     def __call__(self, x):
@@ -41,7 +41,7 @@ class Model():
             compressed image embeding
         """
        
-        return dense1(x)
+        return self.dense1(x)
     
        
     
@@ -57,7 +57,7 @@ class Model():
             A tuple containing all of the learnable parameters for our model
         """
         # STUDENT CODE HERE
-        return dense1.params
+        return self.dense1.params
 
 def loss(Sgood, Sbad, margin):
         """ computes the Margin Ranking Loss 
@@ -80,6 +80,8 @@ def loss(Sgood, Sbad, margin):
             the margin ranking loss (0 if Sgood is bigger than Sbad + magrin, a linear loss otherwise)
         
         """
+        return mg.maximum(0, margin - (sg - sb))
+
 def accuracy():
     """ Count up whether the similariy for the correct value  
         is the good value greater than bad, true = 1, false = 0
@@ -90,10 +92,9 @@ def accuracy():
         ----------
         
         Sgood - mg array, (50,)
-            the cos similarity between image and good caption
             
         Sbad mg array, (50,)
-            the cos similarity between the image and the bad caption
+           
         
         Returns
         -------
@@ -104,6 +105,34 @@ def accuracy():
 
 
 
-se_image = Model(512, 50)
+def train(model, optim, num_epochs, images, captions, batch_size=32):
+    
+    for epoch_cnt in range(num_epochs):
+        idxs = np.arange(len(images))
+        np.random.shuffle(idxs)
 
-optim = SGD(se_image.parameters, learning_rate=10e-3)
+        for batch_cnt in range(0, len(images)//batch_size):
+            batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
+            batch = images[batch_indices]
+
+            prediction = model(batch) #plug in batch of pictures into model and get out Wimg
+            truth = caption[batch_indices] #the caption (50,) at the same indexes
+
+            loss = loss(prediction, truth)
+            acc = accuracy(prediction, truth)
+
+            loss.backward()
+
+            optim.step()
+            loss.null_gradients()
+
+            plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
+
+
+
+model = Model(512, 50)
+optim = SGD(model.parameters, learning_rate=0.1)
+num_epochs = 1
+batch_size = 32
+
+se_image = train(model, optim, )
