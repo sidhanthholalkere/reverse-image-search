@@ -1,5 +1,7 @@
 import pickle
 from pathlib import Path
+import image_features
+import Model
 
 class ImageDatabase:
     """ A database that stores and maps the image feature
@@ -12,6 +14,16 @@ class ImageDatabase:
         # database is a dict with the image feature vectors as key
         # and semantic embeddings as values
         self.database = {}
+
+    def initialize_params(self):
+        """ maps the image feature vectors to 
+            semantic embeddings from model
+        """
+        model = Model.Model(512, 50) # update this
+        img_vectors = image_features.load_resnet("data/resnet18_features.pkl")
+
+        for img_vector in img_vectors.values():
+            self.database[img_vector] = model(img_vector)
 
     def load_database(self, path):
         """
