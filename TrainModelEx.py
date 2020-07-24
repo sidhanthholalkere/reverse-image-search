@@ -13,7 +13,7 @@ model = Model(512, 50)
 num_epochs = 1
 batch_size = 32
 margin = 0.1
-path = 'data/captions_train2014.json'
+path = r'data\resnet18_features.pkl'
 
 
 

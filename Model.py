@@ -121,6 +121,8 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
 
             good_pic_pred = model(good_pic_batch)
             bad_pic_pred = model(bad_pic_batch)
+            good_pic_pred = (good_pic_pred - good_pic_pred.mean()) / good_pic_pred.std()
+            bad_pic_pred = (bad_pic_pred - bad_pic_pred.mean()) / bad_pic_pred.std()
 
             Sgood = cosine_dist(good_pic_pred, caption_batch)
             Sbad = cosine_dist(bad_pic_pred, caption_batch)

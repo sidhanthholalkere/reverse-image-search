@@ -1,4 +1,4 @@
-import numpy as np
+import mygrad as mg
 
 def cosine_dist(d1, d2):
     """
@@ -15,4 +15,4 @@ def cosine_dist(d1, d2):
         cosine distance of d1 and d2
     
     """
-    return 1 - (np.dot(d1, d2)) / (np.linalg.norm(d1)* np.linalg.norm(d2))
+    return mg.matmul(d1, d2)
