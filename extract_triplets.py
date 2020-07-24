@@ -2,7 +2,6 @@ import utils
 import numpy as np
 from image_features import load_resnet
 from load import load_file
-from embed_caption import se_text
 
 def choose_bad_img(path, good_img_caption, images):
     """
@@ -15,10 +14,10 @@ def choose_bad_img(path, good_img_caption, images):
     """
     img_to_descriptor = load_resnet(path)
 
-    #img_id_to_caption = utils.im_id_to_caps()
-    img_id_to_caption = load_file(r"data\imid2caps.pickle")
+    img_id_to_caption = utils.im_id_to_cap_ids()
+    #img_id_to_caption = load_file(r"data\imid2caps.pickle")
     bad_img_captions = []
-    print("images", images)
+    #print("images", images)
     for image in images[0]:
         bad_img_captions.append(img_id_to_caption[image])
     #print("bad captions", bad_img_captions)
@@ -27,17 +26,19 @@ def choose_bad_img(path, good_img_caption, images):
         if len(caption_cluster) > 0:
             random_indx = np.random.randint(0, len(caption_cluster))
             chosen_captions.append(caption_cluster[random_indx])
-    print("chosen", chosen_captions[:10])
+    #print("chosen", chosen_captions)
     bad_captions = []
-    for caption in chosen_captions[:3]:
-        embed = se_text(caption)
-        print("embedding")
+    caption_to_vector = load_file(r"data\capid2vec.pickle")
+    for caption in chosen_captions:
+        embed = caption_to_vector[caption]
+        #print("embedding")
         bad_captions.append(embed)
-    print(bad_captions, good_img_caption)
+    #print(bad_captions, good_img_caption)
     dist = np.array([np.dot(encoding, good_img_caption) for encoding in bad_captions])
+    #print(dist)
     img_indx = np.argmax(dist)
-    print("index", img_to_descriptor[img_indx])
-    return img_to_descriptor[img_indx]
+    #print("index", images[0][img_indx])
+    return images[0][img_indx]
 
 
 def all_triplets(path):
@@ -60,10 +61,11 @@ def all_triplets(path):
     """
 
     caption_id = utils.get_caption_ids()  # returns dictionary
-    caption_id = caption_id[:5]
+    caption_id = caption_id[:30000]
     caption_id_to_img_id = utils.cap_id_to_im_id() #dictonary that maps caption to image ID
     img_id_to_descriptor = load_resnet(path) #dic that maps image id to descriptor
     triplets = []
+    images = []
     all_images = np.array([utils.get_img_ids()])
     #caption_id_to_caption = utils.cap_id_to_vec()
     caption_id_to_caption = load_file(r"data\capid2vec.pickle")
@@ -71,18 +73,19 @@ def all_triplets(path):
         caption = caption_id_to_caption[indiv_caption_id]
         img_id = caption_id_to_img_id[indiv_caption_id]
         good_img = img_id_to_descriptor[img_id]
-        print("goodimg")
+        #print("goodimg")
         cnt = 0
         for i in range(10):
             while True:
                 np.random.shuffle(all_images)
-                images = all_images[cnt*25:(cnt+1)*25] #takes random array
-                print(img_id, images)
+                images = all_images[:,cnt*25:(cnt+1)*25] #takes random array
+                #print(img_id, images.shape, all_images.shape)
                 cnt += 1
-                if img_id in images:
+                if img_id not in images:
                     break
-            bad_img = choose_bad_img(path, caption, images)
-            triplets.append(caption, good_img, bad_img)
+            bad_img = img_id_to_descriptor[choose_bad_img(path, caption, images)]
+            #print(bad_img)
+            triplets.append((caption, good_img, bad_img))
     return triplets
 
 
