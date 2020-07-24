@@ -1,4 +1,4 @@
-
+import numpy as np
 
 def accuracy(Sgood, Sbad):
     """ 
@@ -22,12 +22,20 @@ def accuracy(Sgood, Sbad):
             the accuracy rating of the batch
         
     """
+
+    """
     sum = 0
     for i in range(len(Sgood)):
         if Sgood[i] > Sbad[i]:
             sum +=1   #adds one everytime the good picture is closer to the caption than the bad caption
         #else it would add zero but I think that goes without saying
     return sum/len(Sgood) #returns the average of 0s and 1s
+    """
+
+    values = np.vstack((Sbad, Sgood))
+    acc = np.mean(np.argmax(values, axis=0))
+    return acc
+
 
 
     
