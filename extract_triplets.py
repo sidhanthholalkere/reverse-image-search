@@ -49,17 +49,17 @@ def all_triplets(path):
 
     caption_id = utils.get_caption_ids()  # returns dictionary
     caption_id = caption_id[:30000]
-    caption_id_to_caption = utils.cap_id_to_vec() #caption IDs to captions
     caption_id_to_img_id = utils.cap_id_to_im_id() #dictonary that maps caption to image ID
     img_id_to_descriptor = load_resnet(path) #dic that maps image id to descriptor
     triplets = []
+    images = utils.get_img_ids()
     
     for indiv_caption_id in caption_id:
-        caption = caption_id_to_caption[indiv_caption_id]
+        caption = utils.cap_id_to_vec(indiv_caption_id)
         img_id = caption_id_to_img_id[indiv_caption_id]
         good_img = img_id_to_descriptor[img_id]
         for i in range(10):
-            images = np.random.randint(0, len(img_id), size=25) #takes random array
+            images = np.random.randint(0, len(images), size=25) #takes random array
             bad_img = choose_bad_img(path, caption, images)
             triplets.append(caption, good_img, bad_img)
     return triplets
