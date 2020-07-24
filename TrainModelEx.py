@@ -3,6 +3,10 @@ from Model import train
 from Model import accuracy
 
 
+from noggin import create_plot
+
+plotter, fig, ax = create_plot(metrics=["loss", "accuracy"])
+
 
 learning_rate=0.1
 model = Model(512, 50)
