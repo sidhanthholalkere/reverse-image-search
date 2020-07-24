@@ -1,8 +1,10 @@
-import utils
+from utils import Utils_Class
 import numpy as np
 from image_features import load_resnet
 from load import load_file
 from embed_caption import se_text
+
+utils = Utils_Class()
 
 def choose_bad_img(path, good_img_caption, images):
     """
