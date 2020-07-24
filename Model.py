@@ -5,6 +5,7 @@ import numpy as np
 import utils
 from cos_sim import cosine_dist
 from extract_triplets import triplets
+from accuracy import accuracy
 
 from mygrad.nnet.losses import margin_ranking_loss
 
@@ -66,28 +67,6 @@ class Model():
         return self.dense1.params
 
 
-def accuracy():
-    """ Count up whether the similariy for the correct value  
-        is the good value greater than bad, true = 1, false = 0
-
-        mean the 1's and 0's accross the batches
-        
-        Parameters
-        ----------
-        
-        Sgood - mg array, (50,)
-            
-        Sbad mg array, (50,)
-           
-        
-        Returns
-        -------
-        Accuracy - int
-            the accuracy rating of the batch
-        
-        """
-
-
 
 def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
     """ trains the model 
@@ -129,7 +108,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         for batch_cnt in range(0, len(images)//batch_size):
             batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
             
-            good_pic, bad_pic, caption = triplets(path, model, images, batch_indices) 
+            good_pic, bad_pic, caption = triplets(path, model, batch_indices) 
 
             good_pic_pred = model(good_pic)
             bad_pic_pred = model(bad_pic)
@@ -138,7 +117,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
             Sbad = cosine_dist(bad_pic_pred, caption)
             
             loss = margin_ranking_loss(Sgood, Sbad, margin)
-            acc = accuracy(good_pic_pred, caption)
+            acc = accuracy(Sgood, Sbad)
 
             loss.backward()
             optim.step()
