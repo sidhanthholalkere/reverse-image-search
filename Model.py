@@ -55,7 +55,7 @@ class Model():
     @property
     def parameters(self):
         """ A convenience function for getting all the parameters of our model.
-        
+
         This can be accessed as an attribute, via `model.parameters` 
         
         Returns
@@ -98,7 +98,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         it trains the model by minimizing the loss function
         
         """
-    optim = SGD(model.parameters, learning_rate=0.1)
+    optim = SGD(model.parameters, learning_rate=learning_rate)
     triplets = all_triplets(path)
 
     for epoch_cnt in range(num_epochs):

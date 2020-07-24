@@ -15,7 +15,10 @@ def choose_bad_img(path, good_img_caption, images):
     img_to_descriptor = load_resnet(path)
 
     img_id_to_caption = utils.im_id_to_caps()
-    bad_img_captions = img_id_to_caption[images]
+    images = images.tolist()
+    bad_img_captions = []
+    for image in images:
+        bad_img_captions.append(img_id_to_caption[image])
 
     chosen_captions = []
     for caption_cluster in bad_img_captions:
@@ -23,7 +26,7 @@ def choose_bad_img(path, good_img_caption, images):
         chosen_captions = chosen_captions.append(caption_cluster[random_indx])
 
     dist = np.array([cosine_dist(encoding, good_img_caption) for encoding in chosen_captions])
-    img_indx = np.argmin(dist)
+    img_indx = np.argmax(dist)
 
     return img_to_descriptor[img_indx]
 
@@ -52,14 +55,14 @@ def all_triplets(path):
     caption_id_to_img_id = utils.cap_id_to_im_id() #dictonary that maps caption to image ID
     img_id_to_descriptor = load_resnet(path) #dic that maps image id to descriptor
     triplets = []
-    images = utils.get_img_ids()
+    all_images = utils.get_img_ids()
     
     for indiv_caption_id in caption_id:
         caption = utils.cap_id_to_vec(indiv_caption_id)
         img_id = caption_id_to_img_id[indiv_caption_id]
         good_img = img_id_to_descriptor[img_id]
         for i in range(10):
-            images = np.random.randint(0, len(images), size=25) #takes random array
+            images = np.random.randint(0, len(all_images), size=25) #takes random array
             bad_img = choose_bad_img(path, caption, images)
             triplets.append(caption, good_img, bad_img)
     return triplets
