@@ -64,7 +64,7 @@ class Model():
             A tuple containing all of the learnable parameters for our model
         """
         # STUDENT CODE HERE
-        return self.dense1.params
+        return self.dense1.parameters
 
 
 
