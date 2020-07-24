@@ -47,12 +47,9 @@ class ImageDatabase:
                     list of the image ids for the top
                     k images
         """
-        cos_dis = Counter({img_d: cos_sim.cosine_dist(d, img_d) for img_d in self.database.values()})
-
-        k_img_embs = [img_emb for img_emb, cosd in cos_dis.most_common(k)]
-
+        dot_product = Counter({img_d: np.matmul(d, img_d) for img_d in self.database.values()})
+        k_img_embs = [img_emb for img_emb, dis in dot_product.most_common(k)]
         img_ids = [self.vector_id[img] for img in k_img_embs]
-
         return img_ids
 
     def load_database(self, path):
