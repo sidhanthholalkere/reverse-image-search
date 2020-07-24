@@ -2,6 +2,12 @@ import mygrad as mg
 import mynn
 import numpy as np
 
+import utils
+from cos_sim import cosine_dist
+from extract_triplets import triplets
+
+from mygrad.nnet.losses import margin_ranking_loss
+
 from mygrad.nnet.initializers import he_normal
 from mynn.layers.dense import dense
 
@@ -59,28 +65,6 @@ class Model():
         # STUDENT CODE HERE
         return self.dense1.params
 
-def loss(Sgood, Sbad, margin):
-        """ computes the Margin Ranking Loss 
-        
-        Parameters
-        ----------
-        
-        Sgood - mg array, (50,)
-            the cos similarity between image and good caption
-            
-        Sbad mg array, (50,)
-            the cos similarity between the image and the bad caption
-
-        margin - int
-            the amount Sgood should be better than Sbad
-        
-        Returns
-        -------
-        Loss - mg array, (50,)
-            the margin ranking loss (0 if Sgood is bigger than Sbad + magrin, a linear loss otherwise)
-        
-        """
-        return mg.maximum(0, margin - (Sgood - Sbad))
 
 def accuracy():
     """ Count up whether the similariy for the correct value  
@@ -105,26 +89,56 @@ def accuracy():
 
 
 
-def train(model, optim, num_epochs, images, captions, batch_size=32):
-    
+def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
+    """ trains the model 
+        
+        Parameters
+        ----------
+        
+        model -  Model
+            an initizized Model class, with input and output dim matching the image ID(512) and the descriptor (50) 
+        
+        num_epochs - int
+            amount of epochs
+            
+        margin - int
+            marhine for the margine ranking loss
+            
+        path 
+            path to the images and captions
+        
+        learning_rate(optional) - int
+            learning rate of SDG
+            
+        batch_size(optional) - int
+            the batch size
+            
+
+        Returns
+        -------
+        it trains the model by minimizing the loss function
+        
+        """
+    optim = SGD(model.parameters, learning_rate=0.1)
+
     for epoch_cnt in range(num_epochs):
+        images =  utils.get_img_ids(path)
         idxs = np.arange(len(images))
         np.random.shuffle(idxs)
 
         for batch_cnt in range(0, len(images)//batch_size):
             batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
-            batch = images[batch_indices]
+            
+            good_pic, bad_pic, caption = triplets(path, model, images, batch_indices) 
 
-            good_pic = model(batch) #plug in batch of pictures into model and get out Wimg for the good pictures
-            bad_pic = model() #need to figure out if its random or if its close picture - talk to Petar
+            good_pic_pred = model(good_pic)
+            bad_pic_pred = model(bad_pic)
+
+            Sgood = cosine_dist(good_pic_pred, caption)
+            Sbad = cosine_dist(bad_pic_pred, caption)
             
-            truth = caption[batch_indices] #the caption (50,) at the same indexes
-            
-            Sgood = cosine_dist(good_pic, truth)
-            Sbad = cosine_dist(bad_pic, truth)
-            
-            loss = loss(Sgood, Sbad, margin)
-            acc = accuracy(prediction, truth)
+            loss = margin_ranking_loss(Sgood, Sbad, margin)
+            acc = accuracy(good_pic_pred, caption)
 
             loss.backward()
             optim.step()
@@ -132,13 +146,3 @@ def train(model, optim, num_epochs, images, captions, batch_size=32):
 
             plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
 
-
-model = Model(512, 50)
-optim = SGD(model.parameters, learning_rate=0.1)
-num_epochs = 1
-batch_size = 32
-
-
-margin = 
-
-train(model, optim, num_epochs, images, captions, margin)
