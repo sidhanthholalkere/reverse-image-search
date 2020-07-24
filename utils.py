@@ -228,7 +228,7 @@ class Utils_Class:
         self.capid2vecs = {annotation['id']: sum([freqs[word] * glove[word] if word in glove else 0 for word in annotation['caption']]) for annotation in captions['annotations']}
         return self.capid2vecs
 
-    def save_mappings(self, imid2caps_file, idfs_file, capid2vecs_file, capid2imid_file):
+    def save_mappings(self, imid2caps_file=r"data/imid2caps.pickle", idfs_file=r"data/idfs.pickle", capid2vecs_file=r"data/capid2vecs.pickle", capid2imid_file=r"data/capid2imid"):
         with open(imid2caps_file, mode="wb") as opened_file:
             pickle.dump(self.imid2caps, opened_file)
         with open(idfs_file, mode="wb") as opened_file:
@@ -238,7 +238,7 @@ class Utils_Class:
         with open(capid2imid_file, mode="wb") as opened_file:
             pickle.dump(self.capid2imid, opened_file)
 
-    def load_mappings(self, imid2caps_path, idfs_path, capid2vecs_path, capid2imid_path):
+    def load_mappings(self, imid2caps_path=r"data/imid2caps.pickle", idfs_path=r"data/idfs.pickle", capid2vecs_path=r"data/capid2vecs.pickle", capid2imid_path=r"data/capid2imid"):
         imid2caps_path = Path(imid2caps_path)
         with open(imid2caps_path, mode="rb") as opened_file:
             self.imid2caps = pickle.load(opened_file)
