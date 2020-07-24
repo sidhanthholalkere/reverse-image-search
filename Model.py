@@ -99,7 +99,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         
         """
     optim = SGD(model.parameters, learning_rate=0.1)
-    triplets = all_triplets(path, model) 
+    triplets = all_triplets(path)
 
     for epoch_cnt in range(num_epochs):
         images =  utils.get_img_ids(path)
