@@ -8,7 +8,7 @@ learning_rate=0.1
 model = Model(512, 50)
 num_epochs = 1
 batch_size = 32
-margin = 1
+margin = 0.1
 path = 'data/captions_train2014.json'
 
 
