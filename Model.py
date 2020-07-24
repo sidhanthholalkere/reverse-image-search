@@ -4,7 +4,7 @@ import numpy as np
 
 import utils
 from cos_sim import cosine_dist
-from extract_triplets import triplets
+from extract_triplets import all_triplets
 from accuracy import accuracy
 
 from mygrad.nnet.losses import margin_ranking_loss
@@ -64,7 +64,7 @@ class Model():
             A tuple containing all of the learnable parameters for our model
         """
         # STUDENT CODE HERE
-        return self.dense1.params
+        return self.dense1.parameters
 
 
 
