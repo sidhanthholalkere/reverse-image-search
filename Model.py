@@ -68,7 +68,7 @@ class Model():
 
 
 
-def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
+def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32):
     """ trains the model 
         
         Parameters
@@ -83,8 +83,8 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         margin - int
             marhine for the margine ranking loss
             
-        path 
-            path to the images and captions
+        triplets 
+            triplets created with the data from all_triplets(path)
         
         learning_rate(optional) - int
             learning rate of SDG
@@ -99,7 +99,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         
         """
     optim = SGD(model.parameters, learning_rate=learning_rate)
-    triplets = all_triplets(path)
+    
 
     for epoch_cnt in range(num_epochs):
         images =  utils.get_img_ids(path)

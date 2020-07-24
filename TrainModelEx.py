@@ -14,7 +14,7 @@ num_epochs = 1
 batch_size = 32
 margin = 0.1
 path = r'data\resnet18_features.pkl'
+triplets = all_triplets(path)
 
 
-
-train(model, num_epochs, margin, path, learning_rate=learning_rate, batch_size=batch_size)
+train(model, num_epochs, margin, triplets, learning_rate=learning_rate, batch_size=batch_size)
