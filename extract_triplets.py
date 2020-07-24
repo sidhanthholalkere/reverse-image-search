@@ -60,10 +60,11 @@ def all_triplets(path):
             bad image : shape(512,) descriptor vector of image that doesn't match caption
     
     """
+    utils.load_mappings()
 
     caption_id = utils.get_caption_ids()  # returns dictionary
     caption_id = caption_id[:5]
-    caption_id_to_img_id = utils.cap_id_to_im_id() #dictonary that maps caption to image ID
+    caption_id_to_img_id = utils.capid2imid #dictonary that maps caption to image ID
     img_id_to_descriptor = load_resnet(path) #dic that maps image id to descriptor
     triplets = []
     all_images = np.array([utils.get_img_ids()])
