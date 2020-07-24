@@ -16,6 +16,8 @@ from mynn.optimizers.sgd import SGD
 
 import matplotlib.pyplot as plt
 
+utils = utils.Utils_Class()
+
 
 class Model():
     def __init__(self, dim_input, dim_output): #default dim_input should be 512, output should be 50
@@ -102,7 +104,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
     triplets = all_triplets(path)
 
     for epoch_cnt in range(num_epochs):
-        images =  utils.get_img_ids(path)
+        images = utils.get_img_ids(path)
         idxs = np.arange(len(images))
         np.random.shuffle(idxs)
 
