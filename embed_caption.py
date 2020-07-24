@@ -4,6 +4,8 @@ from gensim.models.keyedvectors import KeyedVectors
 import re, string
 import utils
 
+utils = utils.Utils_Class()
+
 
 def se_text(query, glove_path=r"data\glove.6B.50d.txt.w2v", json_path=r'data\captions_train2014.json'):
     """
