@@ -1,7 +1,8 @@
 import utils
 import numpy as np
 from image_features import load_resnet
-from cos_sim import cosine_dist
+from load import load_file
+from embed_caption import se_text
 
 def choose_bad_img(path, good_img_caption, images):
     """
@@ -14,20 +15,28 @@ def choose_bad_img(path, good_img_caption, images):
     """
     img_to_descriptor = load_resnet(path)
 
-    img_id_to_caption = utils.im_id_to_caps()
-    images = images.tolist()
+    #img_id_to_caption = utils.im_id_to_caps()
+    img_id_to_caption = load_file(r"data\imid2caps.pickle")
     bad_img_captions = []
-    for image in images:
+    print("images", images)
+    for image in images[0]:
         bad_img_captions.append(img_id_to_caption[image])
-
+    #print("bad captions", bad_img_captions)
     chosen_captions = []
     for caption_cluster in bad_img_captions:
-        random_indx = np.random.randint(0, len(caption_cluster))
-        chosen_captions = chosen_captions.append(caption_cluster[random_indx])
-
-    dist = np.array([cosine_dist(encoding, good_img_caption) for encoding in chosen_captions])
+        if len(caption_cluster) > 0:
+            random_indx = np.random.randint(0, len(caption_cluster))
+            chosen_captions.append(caption_cluster[random_indx])
+    print("chosen", chosen_captions[:10])
+    bad_captions = []
+    for caption in chosen_captions[:3]:
+        embed = se_text(caption)
+        print("embedding")
+        bad_captions.append(embed)
+    print(bad_captions, good_img_caption)
+    dist = np.array([np.dot(encoding, good_img_caption) for encoding in bad_captions])
     img_indx = np.argmax(dist)
-
+    print("index", img_to_descriptor[img_indx])
     return img_to_descriptor[img_indx]
 
 
@@ -51,18 +60,27 @@ def all_triplets(path):
     """
 
     caption_id = utils.get_caption_ids()  # returns dictionary
-    caption_id = caption_id[:30000]
+    caption_id = caption_id[:5]
     caption_id_to_img_id = utils.cap_id_to_im_id() #dictonary that maps caption to image ID
     img_id_to_descriptor = load_resnet(path) #dic that maps image id to descriptor
     triplets = []
-    all_images = utils.get_img_ids()
-    
+    all_images = np.array([utils.get_img_ids()])
+    #caption_id_to_caption = utils.cap_id_to_vec()
+    caption_id_to_caption = load_file(r"data\capid2vec.pickle")
     for indiv_caption_id in caption_id:
-        caption = utils.cap_id_to_vec(indiv_caption_id)
+        caption = caption_id_to_caption[indiv_caption_id]
         img_id = caption_id_to_img_id[indiv_caption_id]
         good_img = img_id_to_descriptor[img_id]
+        print("goodimg")
+        cnt = 0
         for i in range(10):
-            images = np.random.randint(0, len(all_images), size=25) #takes random array
+            while True:
+                np.random.shuffle(all_images)
+                images = all_images[cnt*25:(cnt+1)*25] #takes random array
+                print(img_id, images)
+                cnt += 1
+                if img_id in images:
+                    break
             bad_img = choose_bad_img(path, caption, images)
             triplets.append(caption, good_img, bad_img)
     return triplets
