@@ -119,11 +119,11 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
             bad_pic_batch.append(i[1] for i in triplets_batch) #this one has batch_size 
             caption_batch.append(i[2] for i in triplets_batch) #batch of captions
 
-            good_pic_pred = model(good_pic)
-            bad_pic_pred = model(bad_pic)
+            good_pic_pred = model(good_pic_batch)
+            bad_pic_pred = model(bad_pic_batch)
 
-            Sgood = cosine_dist(good_pic_pred, caption)
-            Sbad = cosine_dist(bad_pic_pred, caption)
+            Sgood = cosine_dist(good_pic_pred, caption_batch)
+            Sbad = cosine_dist(bad_pic_pred, caption_batch)
             
             loss = margin_ranking_loss(Sgood, Sbad, margin)
             acc = accuracy(Sgood, Sbad)
