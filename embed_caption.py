@@ -5,7 +5,7 @@ import re, string
 import utils
 
 
-def se_text(query, glove_path=r"data/glove.6B.50d.txt.w2v", json_path=r'data/captions_train2014.json'):
+def se_text(query, glove_path=r"data\glove.6B.50d.txt.w2v", json_path=r'data\captions_train2014.json'):
     """
     loads Glove50 embeddings, weights them according to IDF
     Parameters
