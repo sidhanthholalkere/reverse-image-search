@@ -99,6 +99,7 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         
         """
     optim = SGD(model.parameters, learning_rate=0.1)
+    triplets = all_triplets(path, model) 
 
     for epoch_cnt in range(num_epochs):
         images =  utils.get_img_ids(path)
@@ -108,7 +109,15 @@ def train(model, num_epochs, margin, path, learning_rate=0.1, batch_size=32):
         for batch_cnt in range(0, len(images)//batch_size):
             batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
             
-            good_pic, bad_pic, caption = triplets(path, model, batch_indices) 
+            triplets_batch = triplets[batch_indices]
+
+            good_pic_batch = []
+            bad_pic_batch = []
+            caption_batch = []
+
+            good_pic_batch.append(i[0] for i in triplets_batch) #get the batch of pictues
+            bad_pic_batch.append(i[1] for i in triplets_batch) #this one has batch_size 
+            caption_batch.append(i[2] for i in triplets_batch) #batch of captions
 
             good_pic_pred = model(good_pic)
             bad_pic_pred = model(bad_pic)
