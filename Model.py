@@ -100,7 +100,6 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
         
         """
     optim = SGD(model.parameters, learning_rate=learning_rate)
-    triplets = load_file(r"data\triplets")
     #print(triplets[0:3])
     images = utils.get_img_ids(path)
 
