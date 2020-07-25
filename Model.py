@@ -100,13 +100,9 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
         
         """
     optim = SGD(model.parameters, learning_rate=learning_rate)
-<<<<<<< HEAD
     triplets = load_file(r"data\triplets")
     #print(triplets[0:3])
     images = utils.get_img_ids(path)
-=======
-    
->>>>>>> fdc28f9ce6e51a0e54cb8e20ee2fa6ba559f65cd
 
     for epoch_cnt in range(num_epochs):
         idxs = np.arange(len(images))
