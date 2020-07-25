@@ -13,7 +13,8 @@ from mygrad.nnet.initializers import he_normal
 from mynn.layers.dense import dense
 
 from mynn.optimizers.sgd import SGD
-from load import load_file
+# from load import load_file
+from image_features import load_resnet
 
 import matplotlib.pyplot as plt
 
@@ -100,8 +101,9 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
         
         """
     optim = SGD(model.parameters, learning_rate=learning_rate)
+    triplets = load_resnet(r"data\triplets")
     #print(triplets[0:3])
-    images = utils.get_img_ids(path)
+    images = utils.get_img_ids()
 
     for epoch_cnt in range(num_epochs):
         idxs = np.arange(len(images))
@@ -126,8 +128,8 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
             bad_pic_pred = bad_pic_pred.reshape(1600, 1, 1)
             caption_batch = caption_batch.reshape(1600, 1, 1)
 
-            Sgood = cosine_dist(good_pic_pred, caption_batch)
-            Sbad = cosine_dist(bad_pic_pred, caption_batch)
+            Sgood = (good_pic_pred * caption_batch).sum(axis=-1)
+            Sbad = (bad_pic_pred * caption_batch).sum(axis=-1)
             #print(Sgood.shape, Sbad.shape)
             Sgood = Sgood.reshape(32, 50)
             Sbad = Sbad.reshape(32, 50)
@@ -141,5 +143,5 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
             optim.step()
             loss.null_gradients()
 
-            #plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
+            plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
 
