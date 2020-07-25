@@ -13,6 +13,7 @@ from mygrad.nnet.initializers import he_normal
 from mynn.layers.dense import dense
 
 from mynn.optimizers.sgd import SGD
+from load import load_file
 
 import matplotlib.pyplot as plt
 
@@ -99,40 +100,47 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
         
         """
     optim = SGD(model.parameters, learning_rate=learning_rate)
-    
+    triplets = load_file(r"data\triplets")
+    #print(triplets[0:3])
+    images = utils.get_img_ids(path)
 
     for epoch_cnt in range(num_epochs):
-        images =  utils.get_img_ids(path)
         idxs = np.arange(len(images))
         np.random.shuffle(idxs)
 
         for batch_cnt in range(0, len(images)//batch_size):
+
             batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
-            
-            triplets_batch = triplets[batch_indices]
+            triplets_batch = [triplets[index] for index in batch_indices]
+            #print(triplets_batch[0])
 
-            good_pic_batch = []
-            bad_pic_batch = []
-            caption_batch = []
-
-            good_pic_batch.append(i[0] for i in triplets_batch) #get the batch of pictues
-            bad_pic_batch.append(i[1] for i in triplets_batch) #this one has batch_size 
-            caption_batch.append(i[2] for i in triplets_batch) #batch of captions
+            good_pic_batch = np.array([val[1] for val in triplets_batch])
+            bad_pic_batch = np.array([val[2] for val in triplets_batch])
+            caption_batch = np.array([val[0] for val in triplets_batch])
 
             good_pic_pred = model(good_pic_batch)
             bad_pic_pred = model(bad_pic_batch)
-            good_pic_pred = (good_pic_pred - good_pic_pred.mean()) / good_pic_pred.std()
-            bad_pic_pred = (bad_pic_pred - bad_pic_pred.mean()) / bad_pic_pred.std()
+            good_pic_pred = good_pic_pred / mg.sqrt(mg.sum(mg.power(good_pic_pred, 2)))
+            bad_pic_pred = bad_pic_pred / mg.sqrt((mg.sum(mg.power(bad_pic_pred, 2))))
+
+            good_pic_pred = good_pic_pred.reshape(1600, 1, 1)
+            bad_pic_pred = bad_pic_pred.reshape(1600, 1, 1)
+            caption_batch = caption_batch.reshape(1600, 1, 1)
 
             Sgood = cosine_dist(good_pic_pred, caption_batch)
             Sbad = cosine_dist(bad_pic_pred, caption_batch)
-            
-            loss = margin_ranking_loss(Sgood, Sbad, margin)
+            #print(Sgood.shape, Sbad.shape)
+            Sgood = Sgood.reshape(32, 50)
+            Sbad = Sbad.reshape(32, 50)
+
+            loss = margin_ranking_loss(Sgood, Sbad, 1, margin)
             acc = accuracy(Sgood, Sbad)
+            if batch_cnt % 10 == 0:
+                print(loss, acc)
 
             loss.backward()
             optim.step()
             loss.null_gradients()
 
-            plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
+            #plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
 

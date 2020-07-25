@@ -4,6 +4,7 @@ import re
 import string
 from collections import defaultdict
 from gensim.models.keyedvectors import KeyedVectors
+import pickle
 
 def get_caption_ids(path='data/captions_train2014.json'):
     """
@@ -181,7 +182,7 @@ def idf(caption_path='data/captions_train2014.json'):
     """
     captions = get_captions(caption_path)
     N = len(captions)
-    vocab = list(set([word for caption in captions for word in caption]))
+    vocab = list(set([word for caption in captions for word in tokenize(caption)]))
 
     doc_freq = {}
     for word in vocab:
@@ -212,5 +213,19 @@ def cap_id_to_vec(caption_path='data/captions_train2014.json', w2v_path=r'data/g
 
     glove = KeyedVectors.load_word2vec_format(w2v_path, binary=False) 
     freqs = idf(caption_path)
+    with open("idf", mode="wb") as opened_file:
+        pickle.dump(freqs, opened_file)
 
-    return {annotation['id']: sum([freqs[word] * glove[word] if word in glove else 0 for word in annotation['caption']]) for annotation in captions['annotations']}
+    #return {annotation['id']: sum([freqs[word] * glove[word] if word in glove else 0 for word in tokenize(annotation['caption'])]) for annotation in captions['annotations']}
+
+
+    word_embeddings = {}
+    for i, annotation in enumerate(captions['annotations']):
+        print(i)
+        summ = 0
+        for word in tokenize(annotation['caption']):
+            if word in glove and word in freqs:
+                summ += freqs[word] * glove[word]
+        word_embeddings[annotation['id']] = summ
+
+    return word_embeddings
