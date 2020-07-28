@@ -31,7 +31,9 @@ def display_topk(ids):
         List of the top k ids
     """
     urlsdata = load_file(r"data\idstourls")
-    urls = urlsdata[ids]
+    urls = []
+    for id in ids:
+        urls.append(urlsdata[id])
     
     for url in urls:
         img = download_image(url)

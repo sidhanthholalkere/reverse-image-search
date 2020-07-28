@@ -121,8 +121,8 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
 
             good_pic_pred = model(good_pic_batch)
             bad_pic_pred = model(bad_pic_batch)
-            good_pic_pred = good_pic_pred / mg.sqrt(mg.sum(mg.power(good_pic_pred, 2)))
-            bad_pic_pred = bad_pic_pred / mg.sqrt((mg.sum(mg.power(bad_pic_pred, 2))))
+            good_pic_pred = good_pic_pred / mg.sqrt(mg.sum(mg.power(good_pic_pred, 2), axis = -1, keepdims=True))
+            bad_pic_pred = bad_pic_pred / mg.sqrt((mg.sum(mg.power(bad_pic_pred, 2), axis = -1, keepdims=True)))
             #print(good_pic_pred.shape)
 
             # good_pic_pred = good_pic_pred.reshape(1600, 1, 1)

@@ -2,9 +2,9 @@ import pickle
 from pathlib import Path
 import image_features
 import Model
-import cos_sim
 import numpy as np
 from load import load_file
+from heapq import nlargest
 from collections import Counter
 
 class ImageDatabase:
@@ -17,20 +17,20 @@ class ImageDatabase:
         """
         # database is a dict with the image feature vectors as key
         # and semantic embeddings as values
-        self.database = []
+        self.database = {}
         self.vector_id = {}
-        self.initialize_params()
+        #self.initialize_params()
 
     def initialize_params(self):
         """ maps the image feature vectors to 
             semantic embeddings from model
         """
         model = Model.Model(512, 50) # update this
-        Model.train(model, 1, 0.1, load_file(r"data\triplets"), learning_rate=0.1, batch_size=32)
+        Model.train(model, 5, 0.1, load_file(r"data\triplets"), learning_rate=0.1, batch_size=32)
         img_vectors = image_features.load_resnet(r"data\resnet18_features.pkl")
 
         for key, img_vector in img_vectors.items():
-            self.database[key] = model(img_vector)
+            self.database[key] = model(img_vector).data
 
         self.vector_id = self.database
 
@@ -49,11 +49,13 @@ class ImageDatabase:
                     list of the image ids for the top
                     k images
         """
-        d = d.reshape(50,1)
-        dot_product = Counter({img_d: np.matmul(d, img_d) for img_d in self.database.values()})
-        k_img_embs = [img_emb for img_emb, dis in dot_product.most_common(k)]
-        img_ids = [self.vector_id[img] for img in k_img_embs]
-        return dot_product[:-k]
+        descriptors = np.array(list(self.database.values())).squeeze()
+        cos_sim = np.dot(descriptors, d)
+        part = np.argpartition(cos_sim, -k)
+
+        ids = list(self.database.keys())
+        img_ids = [ids[img] for img in part[-k:]]
+        return img_ids
 
     def load_database(self, path):
         """
