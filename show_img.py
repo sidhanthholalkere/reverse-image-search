@@ -1,4 +1,5 @@
 import io
+from load import load_file
 import requests
 from PIL import Image
 import image_features
@@ -29,7 +30,8 @@ def display_topk(ids):
     ids: List[string] - shape: (k,)
         List of the top k ids
     """
-    urls = image_features.img_ids_to_url(ids)
+    urlsdata = load_file(r"data\idstourls")
+    urls = urlsdata[ids]
     
     for url in urls:
         img = download_image(url)

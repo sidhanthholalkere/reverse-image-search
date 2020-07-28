@@ -123,6 +123,7 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
             bad_pic_pred = model(bad_pic_batch)
             good_pic_pred = good_pic_pred / mg.sqrt(mg.sum(mg.power(good_pic_pred, 2)))
             bad_pic_pred = bad_pic_pred / mg.sqrt((mg.sum(mg.power(bad_pic_pred, 2))))
+            #print(good_pic_pred.shape)
 
             # good_pic_pred = good_pic_pred.reshape(1600, 1, 1)
             # bad_pic_pred = bad_pic_pred.reshape(1600, 1, 1)
@@ -135,7 +136,7 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
             # Sbad = Sbad.reshape(32, 50)
 
             loss = margin_ranking_loss(Sgood, Sbad, 1, margin)
-            acc = accuracy(Sgood, Sbad)
+            acc = accuracy(Sgood.flatten(), Sbad.flatten())
             if batch_cnt % 10 == 0:
                 print(loss, acc)
 
@@ -143,5 +144,34 @@ def train(model, num_epochs, margin, triplets, learning_rate=0.1, batch_size=32)
             optim.step()
             loss.null_gradients()
 
-            plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
+            #plotter.set_train_batch({"loss" : loss.item(), "accuracy":acc}, batch_size=batch_size)
+
+def test(model, path):
+    triplets = load_resnet(path)
+    #print(triplets[0:3])
+    new_triplets = triplets[:25]
+    good_pic_batch = np.array([val[1] for val in new_triplets])
+    bad_pic_batch = np.array([val[2] for val in new_triplets])
+    caption_batch = np.array([val[0] for val in new_triplets])
+    print(good_pic_batch.shape, caption_batch.shape)
+
+    good_pic_pred = model(good_pic_batch)
+    bad_pic_pred = model(bad_pic_batch)
+    good_pic_pred = good_pic_pred / mg.sqrt(mg.sum(mg.power(good_pic_pred, 2)))
+    bad_pic_pred = bad_pic_pred / mg.sqrt((mg.sum(mg.power(bad_pic_pred, 2))))
+    print(good_pic_pred.shape)
+
+    # good_pic_pred = good_pic_pred.reshape(1600, 1, 1)
+    # bad_pic_pred = bad_pic_pred.reshape(1600, 1, 1)
+    # caption_batch = caption_batch.reshape(1600, 1, 1)
+
+    Sgood = (good_pic_pred * caption_batch).sum(axis=-1)
+    Sbad = (bad_pic_pred * caption_batch).sum(axis=-1)
+    print(Sgood.shape, Sbad.shape)
+    # Sgood = Sgood.reshape(32, 50)
+    # Sbad = Sbad.reshape(32, 50)
+
+    #loss = margin_ranking_loss(Sgood, Sbad, 1, 0.1)
+    acc = accuracy(Sgood.flatten(), Sbad.flatten())
+    print(acc)
 

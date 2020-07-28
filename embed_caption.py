@@ -28,8 +28,9 @@ def se_text(query, glove_path=r"data\glove.6B.50d.txt.w2v", json_path=r'data\cap
     tokens = strip_punc(query).lower().split()
     weighted_embeddings = np.array([glove[token] if token in glove else np.zeros(50,) for token in tokens])
     idf = get_idf(query, path=json_path)
-    return weighted_embeddings * idf[:, np.newaxis]
-
+    print(weighted_embeddings, idf[:, np.newaxis])
+    print(weighted_embeddings * idf[:, np.newaxis])
+    return np.sum(weighted_embeddings * idf[:, np.newaxis], axis = 0)
 
 def strip_punc(s):
     """

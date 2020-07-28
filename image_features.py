@@ -37,5 +37,7 @@ def img_ids_to_url(ids):
         captions = json.load(f)
     
     urls = {image['id']: image['coco_url'] for image in captions['images']}
+    with open("idstourls", mode="wb") as opened_file:
+        pickle.dump(urls, opened_file)
 
     return [urls[id] for id in ids]

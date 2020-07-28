@@ -32,8 +32,9 @@ def accuracy(Sgood, Sbad):
     return sum/len(Sgood) #returns the average of 0s and 1s
     """
 
-    values = np.vstack((Sbad.data, Sgood.data))
-    acc = np.mean(np.argmax(values.data, axis=0))
+    #values = np.vstack((Sbad.data, Sgood.data))
+    #acc = np.mean(np.argmax(values.data, axis=0))
+    acc = np.mean(Sgood.data > Sbad.data)
     return acc
 
 

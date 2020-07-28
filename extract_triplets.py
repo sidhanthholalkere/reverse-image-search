@@ -57,7 +57,7 @@ def all_triplets(path):
     """
 
     caption_id = utils.get_caption_ids()  # returns dictionary
-    caption_id = caption_id[:30000]
+    caption_id = caption_id[30000:30100]
     caption_id_to_img_id = utils.cap_id_to_im_id() #dictonary that maps caption to image ID
     img_id_to_descriptor = load_resnet(path) #dic that maps image id to descriptor
     img_id_to_caption_id = utils.im_id_to_cap_ids()
@@ -68,7 +68,7 @@ def all_triplets(path):
     #    pickle.dump(caption_id_to_caption, opened_file)
 
     caption_id_to_caption = load_file(r"data\capid2cap")
-    for i, indiv_caption_id in enumerate(caption_id[2128:]):
+    for i, indiv_caption_id in enumerate(caption_id):
         print(i)
         caption = caption_id_to_caption[indiv_caption_id]
         img_id = caption_id_to_img_id[indiv_caption_id]
@@ -90,7 +90,7 @@ def all_triplets(path):
                 bad_img = img_id_to_descriptor[img_key]
             #print(bad_img)
             triplets.append((caption, good_img, bad_img))
-    with open("triplets", mode="wb") as opened_file:
+    with open("test_triplets1", mode="wb") as opened_file:
         pickle.dump(triplets, opened_file)
     return triplets
 
